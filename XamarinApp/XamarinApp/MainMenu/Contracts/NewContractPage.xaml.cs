@@ -4,6 +4,13 @@ using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using Waher.IoTGateway.Setup;
 using Waher.Networking.XMPP.Contracts;
+using Waher.Networking.XMPP.HttpFileUpload;
+using Plugin.Media.Abstractions;
+using Plugin.Media;
+using System.IO;
+
+using System.ComponentModel;
+using Waher.Persistence;
 
 namespace XamarinApp.MainMenu.Contracts
 {
@@ -20,6 +27,7 @@ namespace XamarinApp.MainMenu.Contracts
 		private string templateId = string.Empty;
 		private string role = string.Empty;
 		private string visibility = string.Empty;
+		private readonly Dictionary<string, (string, string, byte[])> photos = new Dictionary<string, (string, string, byte[])>();
 
 		public NewContractPage(XmppConfiguration XmppConfiguration, Page Owner,
 			SortedDictionary<string, SortedDictionary<string, string>> ContractTypesPerCategory)
@@ -555,6 +563,75 @@ namespace XamarinApp.MainMenu.Contracts
 		{
 			this.BackButton_Clicked(this, new EventArgs());
 			return true;
+		}
+		private async void AddPhotoButton_Clicked(object sender, EventArgs e)
+		{
+			MediaFile Photo = await CrossMedia.Current.TakePhotoAsync(new StoreCameraMediaOptions()
+			{
+				MaxWidthHeight = 1024,
+				CompressionQuality = 100,
+				AllowCropping = true,
+				ModalPresentationStyle = MediaPickerModalPresentationStyle.FullScreen,
+				RotateImage = true,
+				SaveMetaData = true,
+				Directory = "Photos",
+				Name = "Photo.jpg",
+				DefaultCamera = CameraDevice.Rear
+			});
+
+			if (Photo is null)
+				return;
+
+			MemoryStream ms = new MemoryStream();
+			using (Stream f = Photo.GetStream())
+			{
+				f.CopyTo(ms);
+			}
+
+			byte[] Bin = ms.ToArray();
+			string PhotoId = Guid.NewGuid().ToString();
+
+			if (Bin.Length > xmppConfiguration.HttpFileUploadMaxSize.Value)
+			{
+				ms.Dispose();
+				await this.DisplayAlert("Error", "Photo too large.", "OK");
+				return;
+			}
+
+			int i = this.Formulario.Children.IndexOf(this.AddPhoto);
+
+			if (this.Formulario.Children[i - 1] is Entry)
+			{
+				Label Label = new Label()
+				{
+					Text = "Photos:"
+				};
+
+				this.Formulario.Children.Insert(i++, Label);
+			}
+
+			Image Image = new Image()
+			{
+				Source = ImageSource.FromStream(() => Photo.GetStream()),
+				StyleId = PhotoId
+			};
+
+			this.Formulario.Children.Insert(i++, Image);
+			this.photos[PhotoId] = (Photo.Path, "image/jpeg", Bin);
+
+			Button Button = new Button()
+			{
+				Text = "Remove Photo"
+			};
+
+			Button.Clicked += (sender2, e2) =>
+			{
+				this.Formulario.Children.Remove(Image);
+				this.Formulario.Children.Remove(Button);
+				this.photos.Remove(PhotoId);
+			};
+
+			this.Formulario.Children.Insert(i, Button);
 		}
 
 	}

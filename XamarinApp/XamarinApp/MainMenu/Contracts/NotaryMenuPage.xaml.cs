@@ -12,14 +12,16 @@ namespace XamarinApp.MainMenu.Contracts
 
         private static readonly SortedDictionary<string, SortedDictionary<string, string>> ContractTypesPerCategory =
             new SortedDictionary<string, SortedDictionary<string, string>>()
-            {/*
+            {
                 {
-                    "Put Title of Contract Category here",
-                    new SortedDictionary<string, string>()
+                    "Declaracion Jurada",
+                    new SortedDictionary<string,string>()
                     {
-                        { "Put Title of Contract Template here", "Put contract identity of template here." }
+                        { "Cesantia", "269b35ba-d12c-1323-f412-0cc066805dcd@legal.cybercity.online" },
+                        { "Salvoconducto Mudanza", "26df9fb1-181f-6a06-fc0b-d67146cf5171@legal.cybercity.online" },
+                        { "Patente Titulo", "26f36882-5fbb-a83f-d804-30caffdca4c1@legal.cybercity.online"}
                     }
-                }*/
+                } 
             };
 
         public NotaryMenuPage(Page Owner)

@@ -390,6 +390,8 @@ namespace XamarinApp
 
 				(string HostName, int PortNumber) = await OperatorPage.GetXmppClientService(domainName);
 
+				//new Waher.Networking.Sniffers.XmlFileSniffer() 
+
 				xmpp = new XmppClient(HostName, PortNumber, accountName, passwordHash, passwordHashMethod, "en",
 					typeof(App).Assembly)
 				{
