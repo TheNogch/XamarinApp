@@ -537,11 +537,28 @@ namespace XamarinApp.MainMenu.Contracts
 					return;
 				}
 
+
 				Created = await App.Contracts.CreateContractAsync(this.templateId, Parts.ToArray(), this.template.Parameters, 
 					this.template.Visibility, ContractParts.ExplicitlyDefined, this.template.Duration, this.template.ArchiveRequired, 
 					this.template.ArchiveOptional, null, null, false);
 
-				Created = await App.Contracts.SignContractAsync(Created, this.role, false);
+                foreach ((string, string, byte[]) P in this.photos.Values)
+                {
+                    HttpFileUploadEventArgs e2 = await App.FileUpload.RequestUploadSlotAsync(Path.GetFileName(P.Item1), P.Item2, P.Item3.Length);
+                    if (!e2.Ok)
+                    {
+                        await this.DisplayAlert("Error", "Unable to upload photo: " + e2.ErrorText, "OK");
+                        return;
+                    }
+
+                    await e2.PUT(P.Item3, P.Item2, 30000);
+
+                    byte[] Signature = await App.Contracts.SignAsync(P.Item3);
+
+                    Created = await App.Contracts.AddContractAttachmentAsync(Created.ContractId, e2.GetUrl, Signature);
+                }
+
+                Created = await App.Contracts.SignContractAsync(Created, this.role, false);
 			}
 			catch (Exception ex)
 			{
