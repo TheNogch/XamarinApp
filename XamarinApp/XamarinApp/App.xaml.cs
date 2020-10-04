@@ -123,6 +123,8 @@ namespace XamarinApp
 				await Database.Insert(configuration);
 			}
 
+
+
 			await ShowPage();
 		}
 

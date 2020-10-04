@@ -19,7 +19,7 @@ namespace XamarinApp.MainMenu.Contracts
                     {
                         { "Cesantia", "269b35ba-d12c-1323-f412-0cc066805dcd@legal.cybercity.online" },
                         { "Salvoconducto Mudanza", "26df9fb1-181f-6a06-fc0b-d67146cf5171@legal.cybercity.online" },
-                        { "Patente Titulo", "26f36882-5fbb-a83f-d804-30caffdca4c1@legal.cybercity.online"}
+                        { "Patente Titulo", "26f61876-5fbb-b9ce-d804-30caffde5f53@legal.cybercity.online"}
                     }
                 } 
             };

@@ -6,6 +6,7 @@ using Xamarin.Forms;
 using Waher.Content;
 using Waher.IoTGateway.Setup;
 using Waher.Networking.XMPP.Contracts;
+using Waher.Persistence;
 
 namespace XamarinApp.MainMenu.Contracts
 {
@@ -21,6 +22,9 @@ namespace XamarinApp.MainMenu.Contracts
 		private readonly string petitionId;
 		private readonly string purpose;
 
+		private readonly XmppConfiguration xmppConfiguration;
+
+
 		public PetitionContractPage(XmppConfiguration XmppConfiguration, Page Owner, LegalIdentity RequestorIdentity, string RequestorBareJid,
 			Contract RequestedContract, string PetitionId, string Purpose)
 		{
@@ -31,6 +35,7 @@ namespace XamarinApp.MainMenu.Contracts
 			this.petitionId = PetitionId;
 			this.purpose = Purpose;
 			this.BindingContext = this;
+			this.xmppConfiguration = XmppConfiguration;
 			InitializeComponent();
 
 			ViewContractPage Info = new ViewContractPage(XmppConfiguration, Owner, RequestedContract, true);
@@ -94,9 +99,10 @@ namespace XamarinApp.MainMenu.Contracts
 			}
 		}
 
-		private void AcceptButton_Clicked(object sender, EventArgs e)
+		private async System.Threading.Tasks.Task AcceptButton_ClickedAsync(object sender, EventArgs e)
 		{
-			App.Contracts.PetitionContractResponseAsync(this.requestedContract.ContractId, this.petitionId, this.requestorBareJid, true);
+			//await Database.Insert(this.xmppConfiguration);
+            await App.Contracts.PetitionContractResponseAsync(this.requestedContract.ContractId, this.petitionId, this.requestorBareJid, true);
 			App.ShowPage(this.owner, true);
 		}
 
@@ -145,5 +151,10 @@ namespace XamarinApp.MainMenu.Contracts
 			return true;
 		}
 
-	}
+        private void AcceptButton_Clicked(object sender, EventArgs e)
+        {
+			App.Contracts.PetitionContractResponseAsync(this.requestedContract.ContractId, this.petitionId, this.requestorBareJid, true);
+			App.ShowPage(this.owner, true);
+		}
+    }
 }
