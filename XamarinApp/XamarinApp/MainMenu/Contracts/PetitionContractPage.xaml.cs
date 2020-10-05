@@ -2,11 +2,14 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Threading.Tasks;
 using Xamarin.Forms;
 using Waher.Content;
 using Waher.IoTGateway.Setup;
 using Waher.Networking.XMPP.Contracts;
 using Waher.Persistence;
+using Waher.Persistence.Filters;
+using XamarinApp.Setup;
 
 namespace XamarinApp.MainMenu.Contracts
 {
@@ -110,6 +113,14 @@ namespace XamarinApp.MainMenu.Contracts
 		{
 			App.Contracts.PetitionContractResponseAsync(this.requestedContract.ContractId, this.petitionId, this.requestorBareJid, false);
 			App.ShowPage(this.owner, true);
+
+			Database.Insert(new RegistroPeticiones()
+			{
+				Timestamp = DateTime.Now,
+				ContractId = this.requestedContract.ContractId,
+				PetitorLegalId = this.requestorIdentity.Id,
+				Status = "denied"
+			});
 		}
 
 		private void IgnoreButton_Clicked(object sender, EventArgs e)
@@ -155,6 +166,21 @@ namespace XamarinApp.MainMenu.Contracts
         {
 			App.Contracts.PetitionContractResponseAsync(this.requestedContract.ContractId, this.petitionId, this.requestorBareJid, true);
 			App.ShowPage(this.owner, true);
+
+			Database.Insert(new RegistroPeticiones()
+			{
+				Timestamp = DateTime.Now,
+				ContractId = this.requestedContract.ContractId,
+				PetitorLegalId = this.requestorIdentity.Id,
+				Status = "granted"
+			});
+		}
+
+
+		// Obtener lista de Contratos solicitados.
+		public async Task<IEnumerable<RegistroPeticiones>> BuscarPeticiones(string ContractId)
+		{
+			return await Database.Find<RegistroPeticiones>(new FilterFieldEqualTo("ContractId", ContractId), "Timestamp");
 		}
     }
 }
